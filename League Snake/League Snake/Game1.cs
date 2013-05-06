@@ -22,10 +22,13 @@ namespace League_Snake
         KeyboardState currentKeyboardState;
         KeyboardState previousKeyboardState;
         GamePadState currentGamePadState;
-        GamePadState previousGamePadState;
+
         Texture2D enemyTexture;
         Texture2D poisonTexture;
+        TimeSpan mushroomSpawnTime;
+        Texture2D mushroomTexture;
         List<Teemo> enemies;
+        List<Mushroom> traps;
         TimeSpan enemySpawnTime;
         TimeSpan previousSpawnTime;
         Random random;
@@ -51,6 +54,7 @@ namespace League_Snake
             score = 0;
             base.Initialize();
             enemies = new List<Teemo>();
+            traps = new List<Mushroom>();
             poisonClouds = new List<Poison>();
             previousSpawnTime = TimeSpan.Zero;
             enemySpawnTime = TimeSpan.FromSeconds(3.0f);
@@ -67,6 +71,7 @@ namespace League_Snake
             singed.Initialize(Content.Load<Texture2D>("basic singed sprite 50x40"), playerPosition);
             enemyTexture = Content.Load<Texture2D>("basic teemo sprite");
             poisonTexture = Content.Load<Texture2D>("poison trail");
+            mushroomTexture = Content.Load<Texture2D>("mushroom sprite");
             // TODO: use this.Content to load your game content here
         }
 
@@ -89,6 +94,7 @@ namespace League_Snake
             UpdateEnemies(gameTime);
             updatePoisonTrail(gameTime);
             UpdatePlayer(gameTime);
+            UpdateShrooms(gameTime);
             UpdateCollision();
             // TODO: Add your update logic here
 
@@ -108,6 +114,10 @@ namespace League_Snake
             for (int k = 0; k < poisonClouds.Count; k++)
             {
                 poisonClouds[k].Draw(spriteBatch);
+            }
+            for (int j = 0; j < traps.Count; j++)
+            {
+                traps[j].Draw(spriteBatch);
             }
             singed.Draw(spriteBatch);
 
@@ -207,16 +217,46 @@ namespace League_Snake
             // Update the Enemies
             for (int i = enemies.Count - 1; i >= 0; i--)
             {
-                enemies[i].Update(gameTime);
-
+                enemies[i].Update();
+                if (enemies[i].duration % 100 == 0)
+                {
+                    AddMushroom(enemies[i].Position, i);
+                }
                 if (enemies[i].Active == false)
                 {
                     enemies.RemoveAt(i);
                     score++;
                     addTrail();
-                    
+                    for(int k =0; k < traps.Count;k++)
+                    {
+                        if(traps[k].index ==i)
+                            traps.RemoveAt(k);
+                    }
                 }
+
             }
+        }
+
+        private void UpdateShrooms(GameTime gameTime)
+        {
+            for (int i = 0; i < traps.Count; i++)
+            {
+                traps[i].Update(gameTime);
+                if (traps[i].Active == false)
+                {
+                    traps.RemoveAt(i);
+                    singed.Health--;
+                }
+                
+            }
+        }
+        private void AddMushroom(Vector2 tPosition,int index)
+        {
+
+            Vector2 position = new Vector2(random.Next((int)tPosition.X-50, (int)tPosition.X + 50), random.Next((int)tPosition.Y-50, (int)tPosition.Y + 50));
+            Mushroom shroom = new Mushroom();
+            shroom.Initialize(mushroomTexture, position,index);
+            traps.Add(shroom);
         }
 
         private void updatePoisonTrail(GameTime gameTime)

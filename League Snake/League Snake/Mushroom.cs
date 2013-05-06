@@ -7,14 +7,14 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace League_Snake
 {
-    class Teemo
+    class Mushroom
     {
         public Vector2 Position;
         public bool Active;
         public int Health;
         Texture2D enemyTexture;
         public int Value;
-        public int duration;
+        public int index;
         public int Width
         {
             get { return enemyTexture.Width; }
@@ -24,26 +24,19 @@ namespace League_Snake
             get { return enemyTexture.Height; }
         }
 
-        public void Initialize(Texture2D texture, Vector2 position)
+        public void Initialize(Texture2D texture, Vector2 position, int i)
         {
             enemyTexture = texture;
             Position = position;
-            duration = 0;
             Active = true;
+            index = i;
             Health = 1;
             Value = 1;
         }
 
-        public void Update()
+        public void Update(GameTime gameTime)
         {
-            if (duration <= 100)
-            {
-                duration++;
-            }
-            else
-            {
-                duration = 1;
-            }
+
             if (Health <= 0)
             {
                 Active = false;

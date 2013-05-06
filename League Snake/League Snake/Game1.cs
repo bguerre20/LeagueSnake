@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 
+
 namespace League_Snake
 {
     /// <summary>
@@ -21,11 +22,8 @@ namespace League_Snake
         Singed singed;
         KeyboardState currentKeyboardState;
         KeyboardState previousKeyboardState;
-        GamePadState currentGamePadState;
-
         Texture2D enemyTexture;
         Texture2D poisonTexture;
-        TimeSpan mushroomSpawnTime;
         Texture2D mushroomTexture;
         List<Teemo> enemies;
         List<Mushroom> traps;
@@ -89,7 +87,7 @@ namespace League_Snake
             previousKeyboardState = currentKeyboardState;
 
             currentKeyboardState = Keyboard.GetState();
-            currentGamePadState = GamePad.GetState(PlayerIndex.One);
+
 
             UpdateEnemies(gameTime);
             updatePoisonTrail(gameTime);
@@ -128,71 +126,77 @@ namespace League_Snake
         private void UpdatePlayer(GameTime gameTime)
         {
             // Use the Keyboard / Dpad
-
-            int dir = getDirection();
-            if (dir == 0)
+        
+            if (singed.Health != 0)
             {
-                singed.Position.X += playerMoveSpeed;
-                if (currentKeyboardState.IsKeyDown(Keys.Up) & currentKeyboardState.IsKeyUp(Keys.Right) & currentKeyboardState.IsKeyUp(Keys.Left) & currentKeyboardState.IsKeyUp(Keys.Down))
+                int dir = getDirection();
+                if (dir == 0)
                 {
-                    singed.Direction = 1;
+                    singed.Position.X += playerMoveSpeed;
+                    if (currentKeyboardState.IsKeyDown(Keys.Up) & currentKeyboardState.IsKeyUp(Keys.Right) & currentKeyboardState.IsKeyUp(Keys.Left) & currentKeyboardState.IsKeyUp(Keys.Down))
+                    {
+                        singed.Direction = 1;
+                    }
+                    if (currentKeyboardState.IsKeyDown(Keys.Down) & currentKeyboardState.IsKeyUp(Keys.Right) & currentKeyboardState.IsKeyUp(Keys.Left) & currentKeyboardState.IsKeyUp(Keys.Up))
+                    {
+                        singed.Direction = 3;
+                    }
                 }
-                if (currentKeyboardState.IsKeyDown(Keys.Down) & currentKeyboardState.IsKeyUp(Keys.Right) & currentKeyboardState.IsKeyUp(Keys.Left) & currentKeyboardState.IsKeyUp(Keys.Up))
+                else if (dir == 1)
                 {
-                    singed.Direction = 3;
+                    singed.Position.Y -= playerMoveSpeed;
+
+
+                    if (currentKeyboardState.IsKeyDown(Keys.Left) & currentKeyboardState.IsKeyUp(Keys.Right) & currentKeyboardState.IsKeyUp(Keys.Up) & currentKeyboardState.IsKeyUp(Keys.Down))
+                    {
+                        singed.Direction = 2;
+                    }
+                    if (currentKeyboardState.IsKeyDown(Keys.Right) & currentKeyboardState.IsKeyUp(Keys.Left) & currentKeyboardState.IsKeyUp(Keys.Up) & currentKeyboardState.IsKeyUp(Keys.Down))
+                    {
+                        singed.Direction = 0;
+                    }
                 }
+
+                else if (dir == 2)
+                {
+                    singed.Position.X -= playerMoveSpeed;
+                    if (currentKeyboardState.IsKeyDown(Keys.Up) & currentKeyboardState.IsKeyUp(Keys.Right) & currentKeyboardState.IsKeyUp(Keys.Left) & currentKeyboardState.IsKeyUp(Keys.Down))
+                    {
+                        singed.Direction = 1;
+                    }
+                    if (currentKeyboardState.IsKeyDown(Keys.Down) & currentKeyboardState.IsKeyUp(Keys.Right) & currentKeyboardState.IsKeyUp(Keys.Left) & currentKeyboardState.IsKeyUp(Keys.Up))
+                    {
+                        singed.Direction = 3;
+                    }
+                }
+
+                else
+                {
+                    singed.Position.Y += playerMoveSpeed;
+
+
+                    if (currentKeyboardState.IsKeyDown(Keys.Left) & currentKeyboardState.IsKeyUp(Keys.Right) & currentKeyboardState.IsKeyUp(Keys.Up) & currentKeyboardState.IsKeyUp(Keys.Down))
+                    {
+                        singed.Direction = 2;
+                    }
+                    if (currentKeyboardState.IsKeyDown(Keys.Right) & currentKeyboardState.IsKeyUp(Keys.Up) & currentKeyboardState.IsKeyUp(Keys.Left) & currentKeyboardState.IsKeyUp(Keys.Down))
+                    {
+                        singed.Direction = 0;
+                    }
+                }
+
+
+
+
+                // Make sure that the player does not go out of bounds
+                singed.Position.X = MathHelper.Clamp(singed.Position.X, 0, GraphicsDevice.Viewport.Width - singed.Width);
+                singed.Position.Y = MathHelper.Clamp(singed.Position.Y, 0, GraphicsDevice.Viewport.Height - singed.Height);
+                savePlayerPosition();
             }
-            else if (dir == 1)
-            {
-                singed.Position.Y -= playerMoveSpeed;
-
-
-                if (currentKeyboardState.IsKeyDown(Keys.Left) & currentKeyboardState.IsKeyUp(Keys.Right) & currentKeyboardState.IsKeyUp(Keys.Up) & currentKeyboardState.IsKeyUp(Keys.Down))
-                {
-                    singed.Direction = 2;
-                }
-                if (currentKeyboardState.IsKeyDown(Keys.Right) & currentKeyboardState.IsKeyUp(Keys.Left) & currentKeyboardState.IsKeyUp(Keys.Up) & currentKeyboardState.IsKeyUp(Keys.Down))
-                {
-                    singed.Direction = 0;
-                }
-            }
-
-            else if (dir == 2)
-            {
-                singed.Position.X -= playerMoveSpeed;
-                if (currentKeyboardState.IsKeyDown(Keys.Up) & currentKeyboardState.IsKeyUp(Keys.Right) & currentKeyboardState.IsKeyUp(Keys.Left) & currentKeyboardState.IsKeyUp(Keys.Down))
-                {
-                    singed.Direction = 1;
-                }
-                if (currentKeyboardState.IsKeyDown(Keys.Down) & currentKeyboardState.IsKeyUp(Keys.Right) & currentKeyboardState.IsKeyUp(Keys.Left) & currentKeyboardState.IsKeyUp(Keys.Up))
-                {
-                    singed.Direction = 3;
-                }
-            }
-
             else
             {
-                singed.Position.Y += playerMoveSpeed;
-
-
-                if (currentKeyboardState.IsKeyDown(Keys.Left) & currentKeyboardState.IsKeyUp(Keys.Right) & currentKeyboardState.IsKeyUp(Keys.Up) & currentKeyboardState.IsKeyUp(Keys.Down))
-                {
-                    singed.Direction = 2;
-                }
-                if (currentKeyboardState.IsKeyDown(Keys.Right) & currentKeyboardState.IsKeyUp(Keys.Up) & currentKeyboardState.IsKeyUp(Keys.Left) & currentKeyboardState.IsKeyUp(Keys.Down))
-                {
-                    singed.Direction = 0;
-                }
+                this.Exit();
             }
-
-
-
-
-            // Make sure that the player does not go out of bounds
-            singed.Position.X = MathHelper.Clamp(singed.Position.X, 0, GraphicsDevice.Viewport.Width - singed.Width);
-            singed.Position.Y = MathHelper.Clamp(singed.Position.Y, 0, GraphicsDevice.Viewport.Height - singed.Height);
-            savePlayerPosition();
-            
         }
 
         private void AddEnemy()
@@ -218,20 +222,17 @@ namespace League_Snake
             for (int i = enemies.Count - 1; i >= 0; i--)
             {
                 enemies[i].Update();
-                if (enemies[i].duration % 100 == 0)
+                if (enemies[i].duration == 99)
                 {
-                    AddMushroom(enemies[i].Position, i);
+                    AddMushroom(enemies[i].Position);
+                    enemies[i].shroomCount++;
                 }
                 if (enemies[i].Active == false)
                 {
+                    traps.RemoveRange(0, enemies[i].shroomCount);
                     enemies.RemoveAt(i);
                     score++;
                     addTrail();
-                    for(int k =0; k < traps.Count;k++)
-                    {
-                        if(traps[k].index ==i)
-                            traps.RemoveAt(k);
-                    }
                 }
 
             }
@@ -250,15 +251,28 @@ namespace League_Snake
                 
             }
         }
-        private void AddMushroom(Vector2 tPosition,int index)
+        private void AddMushroom(Vector2 tPosition)
         {
-
-            Vector2 position = new Vector2(random.Next((int)tPosition.X-50, (int)tPosition.X + 50), random.Next((int)tPosition.Y-50, (int)tPosition.Y + 50));
+           
             Mushroom shroom = new Mushroom();
-            shroom.Initialize(mushroomTexture, position,index);
+            shroom.Initialize(mushroomTexture, getNewShroomPosition(tPosition));
             traps.Add(shroom);
         }
 
+        private Vector2 getNewShroomPosition(Vector2 tPosition)
+        {
+            Vector2[] positions = new Vector2[4];
+            //TOP LEFT QUADRANT
+            positions[0] = new Vector2(random.Next((int)tPosition.X - 75, (int)tPosition.X - mushroomTexture.Width), random.Next((int)tPosition.Y - 75, (int)tPosition.Y - mushroomTexture.Height));
+            //BOTTOM LEFT QUADRANT
+            positions[1] = new Vector2(random.Next((int)tPosition.X - 75, (int)tPosition.X - mushroomTexture.Width), random.Next((int)tPosition.Y + mushroomTexture.Height, (int)tPosition.Y + 75));
+            //RIGHT TOP QUADRANT
+            positions[2] = new Vector2(random.Next((int)tPosition.X + mushroomTexture.Width, (int)tPosition.X + 75), random.Next((int)tPosition.Y - 75, (int)tPosition.Y - mushroomTexture.Height));
+            //RIGHT BOTTOM QUADRANT
+            positions[3] = new Vector2(random.Next((int)tPosition.X + mushroomTexture.Width, (int)tPosition.X + 75), random.Next((int)tPosition.Y + mushroomTexture.Height, (int)tPosition.Y + 75));
+            Vector2 position = positions[random.Next(0, 3)];
+            return position;
+        }
         private void updatePoisonTrail(GameTime gameTime)
         {
             Vector2 centerOfPlayer = new Vector2(singed.Position.X + singed.Width / 2, singed.Position.Y + singed.Height / 2);
@@ -278,6 +292,7 @@ namespace League_Snake
         {
             Rectangle rectangle1;
             Rectangle rectangle2;
+            Rectangle rectangle3;
             rectangle1 = new Rectangle((int)singed.Position.X, (int)singed.Position.Y, singed.Width, singed.Height);
 
             for (int i = 0; i < enemies.Count; i++)
@@ -287,7 +302,33 @@ namespace League_Snake
                 {
                     enemies[i].Health = 0;
                 }
-
+                for (int k = 0; k < traps.Count; k++)
+                {
+                    rectangle3 = new Rectangle((int)traps[k].Position.X, (int)traps[k].Position.Y, traps[k].Width, traps[k].Height);
+                    if (rectangle3.Intersects(rectangle2))
+                    {
+                        traps[k].Health = 0;
+                        AddMushroom(getNewShroomPosition(enemies[i].Position));
+                    }
+                }
+            }
+            for (int k = 0; k < traps.Count; k++)
+            {
+                rectangle3 = new Rectangle((int)traps[k].Position.X, (int)traps[k].Position.Y, traps[k].Width, traps[k].Height);
+                if (rectangle3.Intersects(rectangle1))
+                {
+                    traps.RemoveAt(k);
+                    singed.Health--;
+                    for (int j = 0; j < enemies.Count; j++)
+                    {
+                        if (enemies[j].shroomCount > 0)
+                        {
+                            enemies[j].shroomCount--;
+                            break;
+                        }
+                        
+                    }
+                }
             }
         }
 

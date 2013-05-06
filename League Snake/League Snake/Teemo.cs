@@ -12,6 +12,7 @@ namespace League_Snake
         public Vector2 Position;
         public bool Active;
         public int Health;
+        public int shroomCount;
         Texture2D enemyTexture;
         public int Value;
         public int duration;

@@ -14,7 +14,6 @@ namespace League_Snake
         public int Health;
         Texture2D enemyTexture;
         public int Value;
-        public int index;
         public int Width
         {
             get { return enemyTexture.Width; }
@@ -24,12 +23,11 @@ namespace League_Snake
             get { return enemyTexture.Height; }
         }
 
-        public void Initialize(Texture2D texture, Vector2 position, int i)
+        public void Initialize(Texture2D texture, Vector2 position)
         {
             enemyTexture = texture;
             Position = position;
             Active = true;
-            index = i;
             Health = 1;
             Value = 1;
         }
@@ -37,7 +35,7 @@ namespace League_Snake
         public void Update(GameTime gameTime)
         {
 
-            if (Health <= 0)
+            if (Health == 0)
             {
                 Active = false;
             }

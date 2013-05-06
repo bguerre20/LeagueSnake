@@ -23,13 +23,19 @@ namespace League_Snake
             get { return PlayerTexture.Height; }
         }
 
-        
+        public void Update(GameTime gameTime)
+        {
+            if (Health == 0)
+            {
+                Active = false;
+            }
+        }
         public void Initialize(Texture2D texture, Vector2 position)
         {
             PlayerTexture = texture;
             Position = position;
             Active = true;
-            Health = 3;
+            Health = 10;
             Direction = 0;
         }
 
